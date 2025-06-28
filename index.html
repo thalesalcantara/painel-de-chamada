@@ -14,19 +14,37 @@
 </head>
 <body>
   <h1>Entregas em Aberto</h1>
-  <table id="tabela"></table>
+  <table id="tabela">
+    <tr><td>Carregando dados...</td></tr>
+  </table>
 
   <script>
     async function carregar() {
-      const resposta = await fetch("https://opensheet.elk.sh/1AMeYT39om3SSd9BAGYxozq4kouTTqdGhtZMKfuAolnY/Entregas%20em%20Aberto");
-      const dados = await resposta.json();
+      try {
+        const resposta = await fetch("https://opensheet.elk.sh/1AMeYT39om3SSd9BAGYxozq4kouTTqdGhtZMKfuAolnY/Entregas%20em%20Aberto");
+        const dados = await resposta.json();
 
-      const tabela = document.getElementById("tabela");
-      tabela.innerHTML = "<tr><th>Nome</th><th>Bairro de Coleta</th><th>Bairro de Entrega</th></tr>";
+        const tabela = document.getElementById("tabela");
+        tabela.innerHTML = "<tr><th>Nome</th><th>Bairro de Coleta</th><th>Bairro de Entrega</th></tr>";
 
-      dados.forEach(entrega => {
-        tabela.innerHTML += `<tr><td>${entrega.Nome}</td><td>${entrega.Coleta}</td><td>${entrega.Entrega}</td></tr>`;
-      });
+        dados.forEach(entrega => {
+          if (entrega.Nome && entrega.Coleta && entrega.Entrega) {
+            tabela.innerHTML += `<tr>
+              <td>${entrega.Nome}</td>
+              <td>${entrega.Coleta}</td>
+              <td>${entrega.Entrega}</td>
+            </tr>`;
+          }
+        });
+
+        if (tabela.rows.length === 1) {
+          tabela.innerHTML += `<tr><td colspan="3">Nenhuma entrega cadastrada ainda.</td></tr>`;
+        }
+
+      } catch (erro) {
+        document.getElementById("tabela").innerHTML = `<tr><td colspan="3">Erro ao carregar dados.</td></tr>`;
+        console.error("Erro ao carregar dados:", erro);
+      }
     }
     carregar();
   </script>
